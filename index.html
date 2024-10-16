@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Stock Market Dashboard</title>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+    h1 {
+      color: #333;
+      margin-top: 20px;
+    }
+    .chart-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px;
+    }
+    .chart {
+      width: 45%;
+      height: 400px;
+    }
+    .full-width {
+      width: 90%;
+    }
+  </style>
+</head>
+<body>
+  <h1>Real-Time Stock Market Dashboard</h1>
+
+  <div class="chart-container">
+    <div id="line-chart" class="chart"></div>
+    <div id="combo-chart" class="chart"></div>
+    <div id="pie-chart" class="chart"></div>
+    <div id="volume-chart" class="chart"></div>
+    <div id="gainers-losers-chart" class="chart full-width"></div>
+  </div>
+
+  <script type="text/javascript">
+    // Load Google Charts Library
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawCharts);
+
+    // Simulated stock data
+    const stockData = {
+      'AAPL': {prices: [150, 152, 151, 153, 154, 156], volumes: [30000, 28000, 31000, 35000, 37000, 36000]},
+      'GOOG': {prices: [2500, 2520, 2510, 2530, 2550, 2560], volumes: [20000, 22000, 21000, 23000, 25000, 24000]},
+      'TSLA': {prices: [600, 610, 620, 630, 640, 650], volumes: [50000, 51000, 52000, 53000, 54000, 55000]},
+    };
+    
+    let index = 0;
+
+    // Function to draw all charts
+    function drawCharts() {
+      drawLineChart();
+      drawComboChart();
+      drawPieChart();
+      drawVolumeChart();
+      drawGainersLosersChart();
+      // Simulate data updates every 5 seconds
+      setInterval(updateCharts, 5000);
+    }
+
+    // Function to update all charts
+    function updateCharts() {
+      index = (index + 1) % stockData['AAPL'].prices.length;
+      drawLineChart();
+      drawComboChart();
+      drawVolumeChart();
+      drawGainersLosersChart();
+    }
+
+    // Line Chart for stock prices over time
+    function drawLineChart() {
+      const data = new google.visualization.DataTable();
+      data.addColumn('string', 'Time');
+      data.addColumn('number', 'AAPL');
+      data.addColumn('number', 'GOOG');
+      data.addColumn('number', 'TSLA');
+
+      const timeLabels = ['10:00', '10:30', '11:00', '11:30', '12:00', '12:30'];
+      for (let i = 0; i <= index; i++) {
+        data.addRow([timeLabels[i], stockData['AAPL'].prices[i], stockData['GOOG'].prices[i], stockData['TSLA'].prices[i]]);
+      }
+
+      const options = {
+        title: 'Stock Prices Over Time',
+        curveType: 'function',
+        legend: { position: 'bottom' },
+        colors: ['#4285F4', '#DB4437', '#F4B400'],
+      };
+
+      const chart = new google.visualization.LineChart(document.getElementById('line-chart'));
+      chart.draw(data, options);
+    }
+
+    // Combo Chart comparing historical stock performance
+    function drawComboChart() {
+      const data = google.visualization.arrayToDataTable([
+        ['Stock', '2020', '2021', '2022'],
+        ['AAPL', 120, 140, 154],
+        ['GOOG', 2200, 2450, 2550],
+        ['TSLA', 500, 600, 650]
+      ]);
+
+      const options = {
+        title: 'Stock Performance Comparison',
+        vAxis: {title: 'Price'},
+        hAxis: {title: 'Stock'},
+        seriesType: 'bars',
+        series: {3: {type: 'line'}},
+        colors: ['#1E88E5', '#76A7FA', '#34A853']
+      };
+
+      const chart = new google.visualization.ComboChart(document.getElementById('combo-chart'));
+      chart.draw(data, options);
+    }
+
+    // Pie Chart for market sector distribution
+    function drawPieChart() {
+      const data = google.visualization.arrayToDataTable([
+        ['Sector', 'Market Capitalization'],
+        ['Tech', 40],
+        ['Healthcare', 20],
+        ['Energy', 15],
+        ['Financials', 25]
+      ]);
+
+      const options = {
+        title: 'Market Capitalization by Sector',
+        colors: ['#4285F4', '#34A853', '#FBBC05', '#EA4335']
+      };
+
+      const chart = new google.visualization.PieChart(document.getElementById('pie-chart'));
+      chart.draw(data, options);
+    }
+
+    // Column Chart for trading volumes over time
+    function drawVolumeChart() {
+      const data = new google.visualization.DataTable();
+      data.addColumn('string', 'Time');
+      data.addColumn('number', 'AAPL');
+      data.addColumn('number', 'GOOG');
+      data.addColumn('number', 'TSLA');
+
+      const timeLabels = ['10:00', '10:30', '11:00', '11:30', '12:00', '12:30'];
+      for (let i = 0; i <= index; i++) {
+        data.addRow([timeLabels[i], stockData['AAPL'].volumes[i], stockData['GOOG'].volumes[i], stockData['TSLA'].volumes[i]]);
+      }
+
+      const options = {
+        title: 'Trading Volume Over Time',
+        vAxis: {title: 'Volume'},
+        hAxis: {title: 'Time'},
+        colors: ['#34A853', '#DB4437', '#4285F4']
+      };
+
+      const chart = new google.visualization.ColumnChart(document.getElementById('volume-chart'));
+      chart.draw(data, options);
+    }
+
+    // Bar Chart for top gainers and losers
+    function drawGainersLosersChart() {
+      const data = google.visualization.arrayToDataTable([
+        ['Stock', 'Gain/Loss'],
+        ['AAPL', stockData['AAPL'].prices[index] - stockData['AAPL'].prices[0]],
+        ['GOOG', stockData['GOOG'].prices[index] - stockData['GOOG'].prices[0]],
+        ['TSLA', stockData['TSLA'].prices[index] - stockData['TSLA'].prices[0]]
+      ]);
+
+      const options = {
+        title: 'Top Gainers and Losers',
+        hAxis: {title: 'Gain/Loss'},
+        colors: ['#F4B400']
+      };
+
+      const chart = new google.visualization.BarChart(document.getElementById('gainers-losers-chart'));
+      chart.draw(data, options);
+    }
+  </script>
+</body>
+</html>
